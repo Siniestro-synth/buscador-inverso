@@ -103,4 +103,59 @@
     }
   </script>
 </body>
-</html>
+<script>
+  let propiedades = [];
+
+  // Cargamos el archivo JSON con fetch
+  fetch("script.json")
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("No se pudo cargar script.json");
+      }
+      return response.json();
+    })
+    .then(data => {
+      propiedades = data;
+      filtrar(); // Mostramos todas las propiedades al inicio
+    })
+    .catch(error => {
+      console.error("Error al cargar el JSON:", error);
+    });
+
+  function filtrar() {
+    const resultado = document.getElementById("resultado");
+    resultado.innerHTML = "";
+
+    const ciudadInput = document.getElementById("ciudad").value.toLowerCase();
+    const estadoInput = document.getElementById("estado").value.toLowerCase();
+    const fuenteInput = document.getElementById("fuente").value.toLowerCase();
+
+    const filtradas = propiedades.filter(p => {
+      return (
+        (ciudadInput === "" || p.ciudad.toLowerCase().includes(ciudadInput)) &&
+        (estadoInput === "" || p.estado.toLowerCase().includes(estadoInput)) &&
+        (fuenteInput === "" || p.fuente.toLowerCase().includes(fuenteInput))
+      );
+    });
+
+    if (filtradas.length === 0) {
+      resultado.innerHTML = "<p>No se encontraron resultados.</p>";
+      return;
+    }
+
+    filtradas.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <h3>${p.ciudad}</h3>
+        <p><strong>Dirección:</strong> ${p.direccion}</p>
+        <p><strong>Estado:</strong> ${p.estado}</p>
+        <p><strong>Precio:</strong> U$D ${p.precio}</p>
+        <p><strong>Metros:</strong> ${p.metros} m²</p>
+        <p><strong>Fuente:</strong> ${p.fuente}</p>
+      `;
+      resultado.appendChild(card);
+    });
+  }
+</script>
+
