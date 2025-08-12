@@ -1,0 +1,25 @@
+{
+  "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+  "delay_min": 1.0,
+  "delay_max": 2.5,
+  "output": "script.json",
+  "domains": [
+    {
+      "name": "EjemploSite",
+      "pages": [
+        "https://ejemplo.com/ciudad/pagina1",
+        "https://ejemplo.com/ciudad/pagina2"
+      ],
+      "listing_selector": ".card-anuncio", 
+      "fields": {
+        "ciudad": ".meta .ciudad",
+        "direccion": ".meta .direccion",
+        "estado": ".meta .estado",
+        "precio": ".precio",
+        "metros": ".superficie",
+        "url": "a@href"
+      },
+      "use_selenium": false
+    }
+  ]
+}
