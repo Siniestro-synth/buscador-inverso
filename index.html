@@ -1,161 +1,132 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Buscador de Departamentos a Refaccionar</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f0f0;
-      padding: 2rem;
-    }
-    h1 {
-      text-align: center;
-    }
-    .filtros {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    input, select {
-      padding: 0.5rem;
-      font-size: 1rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-    }
-    th, td {
-      padding: 0.75rem;
-      border: 1px solid #ccc;
-      text-align: left;
-    }
-    th {
-      background-color: #e0e0e0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de propiedades</title>
+    <style>
+        .filtros {
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-  <h1>Buscador de Departamentos a Refaccionar</h1>
 
-  <div class="filtros">
+<div class="filtros">
     <input type="text" id="filtroCiudad" placeholder="Ciudad" />
     <input type="number" id="filtroPrecioMin" placeholder="Precio mínimo" />
     <input type="number" id="filtroPrecioMax" placeholder="Precio máximo" />
     <input type="text" id="filtroEstado" placeholder="Estado (ej: refaccionar)" />
-    <button onclick="filtrar()">Buscar</button>
-  </div>
+    <input type="text" id="filtroGeneral" placeholder="Buscar palabra en toda la fila" />
+    <button onclick="filtrarTabla()">Buscar</button>
+</div>
 
-  <table id="tablaResultados">
+<table id="tablaResultados">
     <thead>
-      <tr>
-        <th>Ciudad</th>
-        <th>Dirección</th>
-        <th>Estado</th>
-        <th>Precio</th>
-        <th>m²</th>
-        <th>Fuente</th>
-      </tr>
+        <tr>
+            <th>Ciudad</th>
+            <th>Dirección</th>
+            <th>Estado</th>
+            <th>Precio</th>
+            <th>Fuente</th>
+        </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>CABA</td>
-        <td>Av. Rivadavia 2300</td>
-        <td>A refaccionar</td>
-        <td>55000</td>
-        <td>42</td>
-        <td>Zonaprop</td>
-      </tr>
-      <tr>
-        <td>La Plata</td>
-        <td>Calle 12 y 58</td>
-        <td>A reciclar</td>
-        <td>38000</td>
-        <td>55</td>
-        <td>Argenprop</td>
-      </tr>
+        <!-- Filas de ejemplo -->
+        <tr>
+            <td>Buenos Aires</td>
+            <td>Calle Falsa 123</td>
+            <td>Disponible</td>
+            <td>100000</td>
+            <td>Propiedades.com</td>
+        </tr>
+        <tr>
+            <td>Córdoba</td>
+            <td>Avenida Siempre Viva 456</td>
+            <td>Refaccionar</td>
+            <td>75000</td>
+            <td>InmueblesYa</td>
+        </tr>
     </tbody>
-  </table>
+</table>
 
-  <script>
-    function filtrar() {
-      const ciudad = document.getElementById('filtroCiudad').value.toLowerCase();
-      const precioMin = parseInt(document.getElementById('filtroPrecioMin').value) || 0;
-      const precioMax = parseInt(document.getElementById('filtroPrecioMax').value) || Infinity;
-      const estado = document.getElementById('filtroEstado').value.toLowerCase();
+<div id="cardsContainer"></div>
 
-      const filas = document.querySelectorAll('#tablaResultados tbody tr');
+<script>
+function filtrarTabla() {
+    const ciudad = document.getElementById('filtroCiudad').value.toLowerCase();
+    const precioMin = parseInt(document.getElementById('filtroPrecioMin').value) || 0;
+    const precioMax = parseInt(document.getElementById('filtroPrecioMax').value) || Infinity;
+    const estado = document.getElementById('filtroEstado').value.toLowerCase();
+    const palabra = document.getElementById('filtroGeneral').value.toLowerCase();
 
-      filas.forEach(fila => {
-        const [c, , e, p] = Array.from(fila.children).map(td => td.textContent.toLowerCase());
+    const filas = document.querySelectorAll('#tablaResultados tbody tr');
+
+    filas.forEach(fila => {
+        const textoFila = fila.textContent.toLowerCase();
         const precio = parseInt(fila.children[3].textContent);
 
         const mostrar =
-          (ciudad === '' || c.includes(ciudad)) &&
-          (estado === '' || e.includes(estado)) &&
-          (precio >= precioMin && precio <= precioMax);
+            (ciudad === '' || fila.children[0].textContent.toLowerCase().includes(ciudad)) &&
+            (estado === '' || fila.children[2].textContent.toLowerCase().includes(estado)) &&
+            (precio >= precioMin && precio <= precioMax) &&
+            (palabra === '' || textoFila.includes(palabra));
 
         fila.style.display = mostrar ? '' : 'none';
-      });
-    }
-  </script>
-</body>
-<script>
-  let propiedades = [];
-
-  // Cargamos el archivo JSON con fetch
-  fetch("script.json")
-    .then(response => {
-      if (!response.ok) {
-        throw new Error("No se pudo cargar script.json");
-      }
-      return response.json();
-    })
-    .then(data => {
-      propiedades = data;
-      filtrar(); // Mostramos todas las propiedades al inicio
-    })
-    .catch(error => {
-      console.error("Error al cargar el JSON:", error);
     });
+}
 
-  function filtrar() {
-    const resultado = document.getElementById("resultado");
-    resultado.innerHTML = "";
+function filtrarJson() {
+    const ciudad = document.getElementById('filtroCiudad').value.toLowerCase();
+    const precioMin = parseInt(document.getElementById('filtroPrecioMin').value) || 0;
+    const precioMax = parseInt(document.getElementById('filtroPrecioMax').value) || Infinity;
+    const estado = document.getElementById('filtroEstado').value.toLowerCase();
+    const palabra = document.getElementById('filtroGeneral').value.toLowerCase();
 
-    const ciudadInput = document.getElementById("ciudad").value.toLowerCase();
-    const estadoInput = document.getElementById("estado").value.toLowerCase();
-    const fuenteInput = document.getElementById("fuente").value.toLowerCase();
+    fetch('script.json')
+        .then(response => response.json())
+        .then(data => {
+            const filtrados = data.filter(item => {
+                const textoCompleto = `${item.ciudad} ${item.direccion} ${item.estado} ${item.fuente}`.toLowerCase();
+                return (
+                    (ciudad === '' || item.ciudad.toLowerCase().includes(ciudad)) &&
+                    (estado === '' || item.estado.toLowerCase().includes(estado)) &&
+                    (item.precio >= precioMin && item.precio <= precioMax) &&
+                    (palabra === '' || textoCompleto.includes(palabra))
+                );
+            });
 
-    const filtradas = propiedades.filter(p => {
-      return (
-        (ciudadInput === "" || p.ciudad.toLowerCase().includes(ciudadInput)) &&
-        (estadoInput === "" || p.estado.toLowerCase().includes(estadoInput)) &&
-        (fuenteInput === "" || p.fuente.toLowerCase().includes(fuenteInput))
-      );
+            mostrarCards(filtrados);
+        });
+}
+
+function mostrarCards(data) {
+    const container = document.getElementById('cardsContainer');
+    container.innerHTML = '';
+    data.forEach(item => {
+        const card = document.createElement('div');
+        card.innerHTML = `
+            <h3>${item.ciudad}</h3>
+            <p>${item.direccion}</p>
+            <p>${item.estado}</p>
+            <p>${item.precio}</p>
+            <p>${item.fuente}</p>
+        `;
+        container.appendChild(card);
     });
-
-    if (filtradas.length === 0) {
-      resultado.innerHTML = "<p>No se encontraron resultados.</p>";
-      return;
-    }
-
-    filtradas.forEach(p => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <h3>${p.ciudad}</h3>
-        <p><strong>Dirección:</strong> ${p.direccion}</p>
-        <p><strong>Estado:</strong> ${p.estado}</p>
-        <p><strong>Precio:</strong> U$D ${p.precio}</p>
-        <p><strong>Metros:</strong> ${p.metros} m²</p>
-        <p><strong>Fuente:</strong> ${p.fuente}</p>
-      `;
-      resultado.appendChild(card);
-    });
-  }
+}
 </script>
 
+</body>
+</html>
